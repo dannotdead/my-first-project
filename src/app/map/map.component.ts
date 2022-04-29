@@ -11,6 +11,7 @@ import { toLonLat } from 'ol/proj';
 import {defaults} from 'ol/control';
 import { Feature } from 'ol';
 import { Point } from 'ol/geom';
+import { MapControlService } from '../map-control.service';
 
 @Component({
     selector: 'map',
@@ -24,6 +25,8 @@ export class MapComponent implements OnInit {
     @ViewChild('popupCloser') popupCloser!: ElementRef;
 
     private map!: Map;
+
+    constructor(private mapControl: MapControlService) {}
 
     newFeature(coords: Array<number>): Feature {
       return new Feature({
@@ -64,6 +67,8 @@ export class MapComponent implements OnInit {
         ],
         target: 'ol-map'
       });
+
+      this.mapControl.setData(this.map)
 
       this.map.on('singleclick', (event) => {
         const features = this.source.getFeatures();
