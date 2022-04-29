@@ -96,8 +96,7 @@ export class MapComponent implements OnInit {
             duration: 250,
           },
         },
-        positioning: 'bottom-center',
-        offset: [0, -20]
+        offset: [-50, -115]
       });
       overlay.setPosition(coordinate);
       this.map.addOverlay(overlay);
