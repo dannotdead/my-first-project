@@ -79,28 +79,28 @@ export class MapComponent implements OnInit {
         ],
         target: 'ol-map'
       });
-    }
 
-    addInteractions(event: any): void {
-      this.map.addInteraction(this.modify);
-      this.map.addInteraction(this.draw);
+      this.map.on('singleclick', (event) => {
+        this.map.addInteraction(this.modify);
+        this.map.addInteraction(this.draw);
 
-      const coordinate = this.map.getEventCoordinate(event)
-      const hdms = toStringHDMS(toLonLat(coordinate));
-      this.popupContent.nativeElement.innerHTML = `<p>You clicked here:</p><code>${hdms}</code>`;
+        const coordinate = event.coordinate
+        const hdms = toStringHDMS(toLonLat(coordinate));
+        this.popupContent.nativeElement.innerHTML = `<p>You clicked here:</p><code>${hdms}</code>`;
 
-      let overlay = new Overlay({
-        element: this.popupMain.nativeElement,
-        autoPan: {
-          animation: {
-            duration: 250,
+        let overlay = new Overlay({
+          element: this.popupMain.nativeElement,
+          autoPan: {
+            animation: {
+              duration: 250,
+            },
           },
-        },
-        offset: [-50, -115]
-      });
-      overlay.setPosition(coordinate);
-      this.map.addOverlay(overlay);
-      this.source.addFeature(this.newFeature(coordinate));
+          offset: [-50, -115]
+        });
+        overlay.setPosition(coordinate);
+        this.map.addOverlay(overlay);
+        this.source.addFeature(this.newFeature(coordinate));
+      })
     }
 
     closePopup(): boolean {
