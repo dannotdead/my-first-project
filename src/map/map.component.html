@@ -1,5 +1,5 @@
 <div id="ol-map" class="map-container" (click)="addInteractions($event)"></div>
-<div id="popup" class="ol-popup">
-	<button id="popup-closer" class="ol-popup-closer" (click)="closePopup()"></button>
-	<div id="popup-content" #popupContent></div>
+<div #popupMain id="popup" class="ol-popup">
+  <a href="#" #popupCloser id="popup-closer" class="ol-popup-closer" (click)="closePopup()"></a>
+	<div #popupContent id="popup-content" class="ol-popup-content"></div>
 </div>

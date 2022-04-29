@@ -3,13 +3,15 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import OSM from 'ol/source/OSM';
 import VectorSource from 'ol/source/Vector';
-import { Circle as CircleStyle, Fill, Style } from 'ol/style';
+import { Icon, Style } from 'ol/style';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { Draw, Modify, Snap } from 'ol/interaction';
+import { Draw, Modify } from 'ol/interaction';
 import Overlay from 'ol/Overlay';
 import { toStringHDMS } from 'ol/coordinate';
 import { toLonLat } from 'ol/proj';
 import {defaults} from 'ol/control';
+import { Feature } from 'ol';
+import { Point } from 'ol/geom';
 
 @Component({
     selector: 'map',
@@ -18,46 +20,42 @@ import {defaults} from 'ol/control';
 })
 
 export class MapComponent implements OnInit {
-    name= '';
+    @ViewChild('popupContent') popupContent!: ElementRef;
+    @ViewChild('popupMain') popupMain!: ElementRef;
+    @ViewChild('popupCloser') popupCloser!: ElementRef;
 
-    @ViewChild('popupContent') popupContent: ElementRef;
+    private map!: Map;
 
-    container = document.getElementById('popup');
-    closer = document.getElementById('popup-closer');
+    newFeature(coords: Array<number>): Feature {
+      return new Feature({
+        geometry: new Point(coords)
+      })
+    }
 
-    map: Map;
+    private feauture = new Feature({
+      geometry: new Point([])
+    })
 
-    source = new VectorSource();
-
-    style = new Style({
-      image: new CircleStyle({
-        radius: 7,
-        fill: new Fill({
-          color: '#ffcc33',
-        }),
-      }),
+    private source = new VectorSource({
+      features: [this.feauture]
     });
 
-    overlay = new Overlay({
-      element: this.container!,
-      autoPan: {
-        animation: {
-          duration: 250,
-        },
-      },
-    });
+    private style = new Style({
+      image: new Icon({
+        crossOrigin: 'anonymous',
+        src: 'assets/icon-location30.png',
+      })
+    })
 
-    modify = new Modify({
+    private modify = new Modify({
       source: this.source,
       style: this.style
     });
 
-    draw = new Draw({
+    private draw = new Draw({
       source: this.source,
       type: 'Point',
     });
-
-    snap = new Snap({source: this.source});
 
     ngOnInit(): void {
       this.map = new Map({
@@ -70,7 +68,6 @@ export class MapComponent implements OnInit {
           zoom : false,
           rotate: false
         }),
-        overlays: [this.overlay],
         layers: [
           new TileLayer({
             source: new OSM(),
@@ -87,17 +84,30 @@ export class MapComponent implements OnInit {
     addInteractions(event: any): void {
       this.map.addInteraction(this.modify);
       this.map.addInteraction(this.draw);
-      this.map.addInteraction(this.snap);
 
       const coordinate = this.map.getEventCoordinate(event)
       const hdms = toStringHDMS(toLonLat(coordinate));
       this.popupContent.nativeElement.innerHTML = `<p>You clicked here:</p><code>${hdms}</code>`;
-      this.overlay.setPosition(coordinate);
+
+      let overlay = new Overlay({
+        element: this.popupMain.nativeElement,
+        autoPan: {
+          animation: {
+            duration: 250,
+          },
+        },
+        positioning: 'bottom-center',
+        offset: [0, -20]
+      });
+      overlay.setPosition(coordinate);
+      this.map.addOverlay(overlay);
+      this.source.addFeature(this.newFeature(coordinate));
     }
 
     closePopup(): boolean {
-      this.overlay.setPosition(undefined);
-      this.closer!.blur();
+      let overlay = this.map.getOverlays().getArray()
+      overlay[overlay.length - 1].setPosition(undefined)
+      this.popupCloser.nativeElement.blur();
       return false;
     }
 }
