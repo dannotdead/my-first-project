@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import Map from 'ol/Map';
 
 @Component({
   selector: 'menu',
@@ -7,9 +8,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MenuComponent implements OnInit {
 
-  constructor() { }
+  // private map = document.getElementById('ol-map')
+  // @ViewChild('olMap') map!: Map
+
 
   ngOnInit() {
+  }
+
+  allFeatureDelete(): void {
+    // let layers = this.map.getLayers().getArray()
+    // this.map.removeLayer(layers[1])
   }
 
 }

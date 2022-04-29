@@ -5,9 +5,8 @@ import OSM from 'ol/source/OSM';
 import VectorSource from 'ol/source/Vector';
 import { Icon, Style } from 'ol/style';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { Draw, Modify } from 'ol/interaction';
 import Overlay from 'ol/Overlay';
-import { toStringHDMS } from 'ol/coordinate';
+import { toStringXY } from 'ol/coordinate';
 import { toLonLat } from 'ol/proj';
 import {defaults} from 'ol/control';
 import { Feature } from 'ol';
@@ -29,32 +28,21 @@ export class MapComponent implements OnInit {
     newFeature(coords: Array<number>): Feature {
       return new Feature({
         geometry: new Point(coords)
-      })
+      });
     }
 
-    private feauture = new Feature({
-      geometry: new Point([])
-    })
-
-    private source = new VectorSource({
-      features: [this.feauture]
-    });
+    private source = new VectorSource({});
 
     private style = new Style({
       image: new Icon({
         crossOrigin: 'anonymous',
         src: 'assets/icon-location30.png',
       })
-    })
-
-    private modify = new Modify({
-      source: this.source,
-      style: this.style
     });
 
-    private draw = new Draw({
+    private vectorLayer = new VectorLayer({
       source: this.source,
-      type: 'Point',
+      style: this.style
     });
 
     ngOnInit(): void {
@@ -72,40 +60,58 @@ export class MapComponent implements OnInit {
           new TileLayer({
             source: new OSM(),
           }),
-          new VectorLayer({
-            source: this.source,
-            style: this.style
-          })
+          this.vectorLayer
         ],
         target: 'ol-map'
       });
 
       this.map.on('singleclick', (event) => {
-        this.map.addInteraction(this.modify);
-        this.map.addInteraction(this.draw);
+        const features = this.source.getFeatures();
+        const coordinate = event.coordinate;
+        const feature = this.map.getFeaturesAtPixel(event.pixel)[0];
 
-        const coordinate = event.coordinate
-        const hdms = toStringHDMS(toLonLat(coordinate));
-        this.popupContent.nativeElement.innerHTML = `<p>You clicked here:</p><code>${hdms}</code>`;
+        if (features.length === 0) {
+          this.source.addFeature(this.newFeature(coordinate));
 
-        let overlay = new Overlay({
-          element: this.popupMain.nativeElement,
-          autoPan: {
-            animation: {
-              duration: 250,
+          const overlay = new Overlay({
+            element: this.popupMain.nativeElement,
+            autoPan: {
+              animation: {
+                duration: 250,
+              },
             },
-          },
-          offset: [-50, -115]
-        });
-        overlay.setPosition(coordinate);
-        this.map.addOverlay(overlay);
-        this.source.addFeature(this.newFeature(coordinate));
+            offset: [-50, -115]
+          });
+          this.map.addOverlay(overlay);
+        }
+
+        if (feature) {
+          const featureCoords = features[0].getGeometry()?.getClosestPoint(coordinate) || [0, 0];
+          // долгота/широта
+          const hdms = toStringXY(toLonLat(featureCoords), 2);
+          this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${hdms}</code>`;
+
+          const overlays = this.map.getOverlays().getArray();
+          overlays[0].setPosition(featureCoords);
+        } else {
+          this.source.clear();
+          this.source.addFeature(this.newFeature(coordinate));
+          this.closePopup();
+        }
       })
+
+      this.map.on('pointermove', (event) => {
+        if (this.map.hasFeatureAtPixel(event.pixel)) {
+          this.map.getViewport().style.cursor = 'pointer';
+        } else {
+          this.map.getViewport().style.cursor = 'inherit';
+        }
+      });
     }
 
     closePopup(): boolean {
-      let overlay = this.map.getOverlays().getArray()
-      overlay[overlay.length - 1].setPosition(undefined)
+      let overlay = this.map.getOverlays().getArray();
+      overlay[overlay.length - 1].setPosition(undefined);
       this.popupCloser.nativeElement.blur();
       return false;
     }
