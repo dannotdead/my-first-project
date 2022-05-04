@@ -68,6 +68,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 		});
 
 		this.mapControl.map = this.map;
+		this.mapControl.source = this.source;
 
 		this.map.on('singleclick', (event) => {
 			const features = this.source.getFeatures();
