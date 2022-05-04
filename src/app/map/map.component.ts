@@ -6,7 +6,7 @@ import VectorSource from 'ol/source/Vector';
 import { Icon, Style } from 'ol/style';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Overlay from 'ol/Overlay';
-import { toStringXY } from 'ol/coordinate';
+import { Coordinate, toStringXY } from 'ol/coordinate';
 import { toLonLat } from 'ol/proj';
 import { defaults } from 'ol/control';
 import { Feature } from 'ol';
@@ -24,6 +24,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 	@ViewChild('popupCloser') popupCloser!: ElementRef;
 
 	private map!: Map;
+	private coordsItem = 'coords';
 
 	constructor(private mapControl: MapControlService) {}
 
@@ -77,19 +78,22 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 			if (features.length === 0) {
 				this.source.addFeature(this.newFeature(coordinate));
+				localStorage.clear();
 			}
 
 			if (feature) {
-				const featureCoords = features[0].getGeometry()?.getClosestPoint(coordinate) || [0, 0];
-				// долгота/широта
-				const hdms = toStringXY(toLonLat(featureCoords), 2);
+				const [featureCoords, hdms] = this.getFeatureCoords(features[0], coordinate);
 				this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${hdms}</code>`;
 
 				const overlays = this.map.getOverlays().getArray();
 				overlays[0].setPosition(featureCoords);
 			} else {
 				this.source.clear();
-				this.source.addFeature(this.newFeature(coordinate));
+				const newFeature = this.newFeature(coordinate);
+				this.source.addFeature(newFeature);
+				const [, hdms] = this.getFeatureCoords(newFeature, coordinate);
+				const coords = localStorage.getItem(this.coordsItem)?.split(';') || [];
+				localStorage.setItem(this.coordsItem, [...coords, hdms].join(';'));
 				this.closePopup();
 			}
 		});
@@ -115,6 +119,12 @@ export class MapComponent implements OnInit, AfterViewInit {
 		});
 
 		this.map.addOverlay(overlay);
+	}
+
+	getFeatureCoords(feature: Feature, rawCoords: Coordinate): [Coordinate, string] {
+		const featureCoords = feature.getGeometry()?.getClosestPoint(rawCoords) || [0, 0];
+		const hdms = toStringXY(toLonLat(featureCoords), 2);
+		return [featureCoords, hdms];
 	}
 
 	closePopup(): boolean {
