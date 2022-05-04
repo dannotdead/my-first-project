@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MapControlService } from '../map-control.service';
 import { OpenCageService } from '../open-cage.service';
 
@@ -8,23 +8,24 @@ import { OpenCageService } from '../open-cage.service';
 	styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent implements OnInit {
-	constructor(private mapControl: MapControlService, private httpService: OpenCageService) {}
+	@ViewChild('infoAboutFeatures') infoAboutFeatures!: ElementRef;
 
-	ngOnInit() {}
+	constructor(private mapControl: MapControlService, private apiControl: OpenCageService) {}
+
+	ngOnInit(): void {
+		this.apiControl.infoAboutFeature$.subscribe((response) => {
+			this.infoAboutFeatures.nativeElement.innerHTML = `<p>${response}</p>`;
+		});
+	}
 
 	deleteMapPath(): void {
 		this.clearMapSource();
 		this.clearMapOverlayPosition();
+		this.infoAboutFeatures.nativeElement.innerHTML = ``;
 		localStorage.clear();
-
-		// // долгота/широта
-		// const hdms = toStringXY(toLonLat(featureCoords), 2);
-		// console.log(features[0].getGeometry()?.getClosestPoint());
 	}
 
-	playMap() {
-		this.httpService.getData().subscribe((data: any) => console.log(data));
-	}
+	playMap() {}
 
 	clearMapSource(): void {
 		const features = this.mapControl.source.getFeatures();

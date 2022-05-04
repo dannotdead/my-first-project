@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { env } from 'process';
 
 @Injectable({
 	providedIn: 'root',
@@ -9,7 +9,17 @@ import { env } from 'process';
 export class OpenCageService {
 	constructor(private http: HttpClient) {}
 
-	getData() {
-		return this.http.get(`https://api.opencagedata.com/geocode/v1/json?q=55.77+37.59&key=API_KEY`);
+	private infoAboutFeatureSource = new Subject<Array<string>>();
+
+	infoAboutFeature$ = this.infoAboutFeatureSource.asObservable();
+
+	updateFeatureInfo(value: Array<string>) {
+		this.infoAboutFeatureSource.next(value);
+	}
+
+	getData(coords: Array<string>) {
+		return this.http.get(
+			`https://api.opencagedata.com/geocode/v1/json?q=${coords[0]}+${coords[1]}&key=${environment.OPENCAGE_API_KEY}`
+		);
 	}
 }

@@ -12,6 +12,7 @@ import { defaults } from 'ol/control';
 import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { MapControlService } from '../map-control.service';
+import { OpenCageService } from '../open-cage.service';
 
 @Component({
 	selector: 'map',
@@ -26,7 +27,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 	private map!: Map;
 	private coordsItem = 'coords';
 
-	constructor(private mapControl: MapControlService) {}
+	constructor(private mapControl: MapControlService, private apiControl: OpenCageService) {}
 
 	newFeature(coords: Array<number>): Feature {
 		return new Feature({
@@ -92,6 +93,11 @@ export class MapComponent implements OnInit, AfterViewInit {
 				const newFeature = this.newFeature(coordinate);
 				this.source.addFeature(newFeature);
 				const [, hdms] = this.getFeatureCoords(newFeature, coordinate);
+
+				this.apiControl.getData(hdms.split(', ')).subscribe((data: any) => {
+					this.apiControl.updateFeatureInfo([data.results[0].formatted]);
+				});
+
 				const coords = localStorage.getItem(this.coordsItem)?.split(';') || [];
 				localStorage.setItem(this.coordsItem, [...coords, hdms].join(';'));
 				this.closePopup();
@@ -123,7 +129,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 	getFeatureCoords(feature: Feature, rawCoords: Coordinate): [Coordinate, string] {
 		const featureCoords = feature.getGeometry()?.getClosestPoint(rawCoords) || [0, 0];
-		const hdms = toStringXY(toLonLat(featureCoords), 2);
+		const hdms = toStringXY(toLonLat(featureCoords).reverse(), 5);
 		return [featureCoords, hdms];
 	}
 
