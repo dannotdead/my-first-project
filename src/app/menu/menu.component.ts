@@ -13,6 +13,8 @@ export class MenuComponent implements OnInit {
 
 	deleteMapPath(): void {
 		this.clearMapSource();
+		this.clearMapOverlayPosition();
+		localStorage.clear();
 
 		// // долгота/широта
 		// const hdms = toStringXY(toLonLat(featureCoords), 2);
@@ -25,5 +27,10 @@ export class MenuComponent implements OnInit {
 		if (features.length > 0) {
 			this.mapControl.source.clear();
 		}
+	}
+
+	clearMapOverlayPosition(): void {
+		let overlay = this.mapControl.map.getOverlays().getArray();
+		overlay[0].setPosition(undefined);
 	}
 }

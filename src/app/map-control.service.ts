@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Coordinate } from 'ol/coordinate';
 import Map from 'ol/Map';
 import VectorSource from 'ol/source/Vector';
 
