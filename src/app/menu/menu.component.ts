@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MapControlService } from '../map-control.service';
+import { OpenCageService } from '../open-cage.service';
 
 @Component({
 	selector: 'menu',
@@ -7,7 +8,7 @@ import { MapControlService } from '../map-control.service';
 	styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent implements OnInit {
-	constructor(private mapControl: MapControlService) {}
+	constructor(private mapControl: MapControlService, private httpService: OpenCageService) {}
 
 	ngOnInit() {}
 
@@ -19,6 +20,10 @@ export class MenuComponent implements OnInit {
 		// // долгота/широта
 		// const hdms = toStringXY(toLonLat(featureCoords), 2);
 		// console.log(features[0].getGeometry()?.getClosestPoint());
+	}
+
+	playMap() {
+		this.httpService.getData().subscribe((data: any) => console.log(data));
 	}
 
 	clearMapSource(): void {
