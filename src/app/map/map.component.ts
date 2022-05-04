@@ -11,8 +11,8 @@ import { toLonLat } from 'ol/proj';
 import { defaults } from 'ol/control';
 import { Feature } from 'ol';
 import { Point } from 'ol/geom';
-import { MapControlService } from '../map-control.service';
-import { OpenCageService } from '../open-cage.service';
+import { MapControlService } from '../service/map-control.service';
+import { OpenCageService } from '../service/open-cage.service';
 
 @Component({
 	selector: 'map',

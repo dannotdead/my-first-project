@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MapControlService } from '../map-control.service';
-import { OpenCageService } from '../open-cage.service';
+import { MapControlService } from '../service/map-control.service';
+import { OpenCageService } from '../service/open-cage.service';
 
 @Component({
 	selector: 'menu',
