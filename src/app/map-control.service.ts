@@ -2,20 +2,20 @@ import { Injectable } from '@angular/core';
 import Map from 'ol/Map';
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root',
 })
 export class MapControlService {
+	private _map!: Map;
 
-  private mapSubject!: Map;
+	public get map(): Map {
+		return this._map;
+	}
 
-  setData(newValue: Map) {
-    this.mapSubject = newValue;
-  }
+	public set map(value: Map) {
+		this._map = value;
+	}
 
-  getMap() {
-    return this.mapSubject
-  }
-  // object: map
-  // method: clear map
-  // при инициализации присваиваем туда карту в сервис и управляем ей отсюда
+	// object: map
+	// method: clear map
+	// при инициализации присваиваем туда карту в сервис и управляем ей отсюда
 }
