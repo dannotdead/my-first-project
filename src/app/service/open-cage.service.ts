@@ -13,10 +13,13 @@ export class OpenCageService {
 
 	infoAboutFeature$ = this.infoAboutFeatureSource.asObservable();
 
+  // лишний
 	updateFeatureInfo(value: Array<string>) {
 		this.infoAboutFeatureSource.next(value);
 	}
 
+  // setdata
+  // сейвит в переменную
 	getData(coords: Array<string>) {
 		return this.http.get(
 			`https://api.opencagedata.com/geocode/v1/json?q=${coords[0]}+${coords[1]}&key=${environment.OPENCAGE_API_KEY}`

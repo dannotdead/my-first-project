@@ -13,6 +13,7 @@ import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { MapControlService } from '../service/map-control.service';
 import { OpenCageService } from '../service/open-cage.service';
+import PointerInteraction from 'ol/interaction/Pointer';
 
 @Component({
 	selector: 'map',
@@ -49,6 +50,8 @@ export class MapComponent implements OnInit, AfterViewInit {
 		style: this.style,
 	});
 
+	private pointer = new PointerInteraction({});
+
 	ngOnInit(): void {
 		this.map = new Map({
 			view: new View({
@@ -79,7 +82,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 			if (features.length === 0) {
 				this.source.addFeature(this.newFeature(coordinate));
-				localStorage.clear();
+				localStorage.setItem(this.coordsItem, JSON.stringify([]));
 			}
 
 			if (feature) {
@@ -98,8 +101,9 @@ export class MapComponent implements OnInit, AfterViewInit {
 					this.apiControl.updateFeatureInfo([data.results[0].formatted]);
 				});
 
-				const coords = localStorage.getItem(this.coordsItem)?.split(';') || [];
-				localStorage.setItem(this.coordsItem, [...coords, hdms].join(';'));
+				const coords = localStorage.getItem(this.coordsItem) || '[]';
+				const newCoords = [...JSON.parse(coords), hdms];
+				localStorage.setItem(this.coordsItem, JSON.stringify(newCoords));
 				this.closePopup();
 			}
 		});

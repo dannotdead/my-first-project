@@ -11,11 +11,13 @@ import { OpenCageService } from '../service/open-cage.service';
 	styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent implements OnInit {
+	// отказываемся
 	@ViewChild('infoAboutFeatures') infoAboutFeatures!: ElementRef;
 
 	constructor(private mapControl: MapControlService, private apiControl: OpenCageService) {}
 
 	ngOnInit(): void {
+		// это в методе setdata
 		this.apiControl.infoAboutFeature$.subscribe((response) => {
 			this.infoAboutFeatures.nativeElement.innerHTML = `<p>${response}</p>`;
 		});
@@ -29,11 +31,11 @@ export class MenuComponent implements OnInit {
 	}
 
 	playMap() {
-		const coordsList = localStorage.getItem('coords')?.split(';');
+		const coordsList = JSON.parse(localStorage.getItem('coords') || '[]');
 		if (coordsList) {
 			this.clearMapSource();
 			this.clearMapOverlayPosition();
-			coordsList.map((coords) => this.addPoints(coords));
+			coordsList.map((coords: string) => this.addPoints(coords));
 		}
 	}
 
