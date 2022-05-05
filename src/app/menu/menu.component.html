@@ -4,22 +4,25 @@
 	<p>Описание местоположения:</p>
 	<div *ngIf="info$ | async as info">
 		<table>
+			<thead>
+				<td>Страна</td>
+				<td>Город</td>
+				<tr></tr>
+			</thead>
+			<td>
+				{{ info.components.country }}
+			</td>
+			<td>
+				{{ info.components.city }}
+			</td>
 			<tr>
-				{{
-					info.components.city
-				}}
-			</tr>
-			<tr>
-				{{
-					info.components.country
-				}}
-			</tr>
-			<tr>
+				Широта:
 				{{
 					info.geometry.lat
 				}}
 			</tr>
 			<tr>
+				Долгота:
 				{{
 					info.geometry.lng
 				}}
