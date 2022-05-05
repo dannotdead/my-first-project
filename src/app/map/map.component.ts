@@ -64,11 +64,13 @@ export class MapComponent implements OnInit, AfterViewInit {
 					}
 
 					if (feature) {
-						const [featureCoords, hdms] = this.getFeatureCoords(features[0], coordinate);
-						this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${hdms}</code>`;
+						features.map((feat) => {
+							const [featureCoords, hdms] = this.getFeatureCoords(feat, coordinate);
+							this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${hdms}</code>`;
 
-						const overlays = this.map.getOverlays().getArray();
-						overlays[0].setPosition(featureCoords);
+							const overlays = this.map.getOverlays().getArray();
+							overlays[0].setPosition(featureCoords);
+						});
 					} else {
 						this.source.clear();
 						const newFeature = this.newFeature(coordinate);
