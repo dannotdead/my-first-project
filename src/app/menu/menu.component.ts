@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
@@ -11,22 +11,17 @@ import { OpenCageService } from '../service/open-cage.service';
 	styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent implements OnInit {
-	// отказываемся
-	@ViewChild('infoAboutFeatures') infoAboutFeatures!: ElementRef;
-
 	constructor(private mapControl: MapControlService, private apiControl: OpenCageService) {}
 
+	public info$ = this.apiControl.infoAboutFeature$;
+
 	ngOnInit(): void {
-		// это в методе setdata
-		this.apiControl.infoAboutFeature$.subscribe((response) => {
-			this.infoAboutFeatures.nativeElement.innerHTML = `<p>${response}</p>`;
-		});
+		this.info$.pipe((data) => data);
 	}
 
 	deleteMapPath(): void {
 		this.clearMapSource();
 		this.clearMapOverlayPosition();
-		this.infoAboutFeatures.nativeElement.innerHTML = ``;
 		localStorage.clear();
 	}
 

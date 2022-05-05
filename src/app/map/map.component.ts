@@ -97,9 +97,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 				this.source.addFeature(newFeature);
 				const [, hdms] = this.getFeatureCoords(newFeature, coordinate);
 
-				this.apiControl.getData(hdms.split(', ')).subscribe((data: any) => {
-					this.apiControl.updateFeatureInfo([data.results[0].formatted]);
-				});
+				this.apiControl.setData(hdms.split(', '));
 
 				const coords = localStorage.getItem(this.coordsItem) || '[]';
 				const newCoords = [...JSON.parse(coords), hdms];

@@ -2,5 +2,28 @@
 <button mat-raised-button color="primary" (click)="playMap()">Воспроизвести</button>
 <div class="description">
 	<p>Описание местоположения:</p>
-	<div #infoAboutFeatures></div>
+	<div *ngIf="info$ | async as info">
+		<table>
+			<tr>
+				{{
+					info.components.city
+				}}
+			</tr>
+			<tr>
+				{{
+					info.components.country
+				}}
+			</tr>
+			<tr>
+				{{
+					info.geometry.lat
+				}}
+			</tr>
+			<tr>
+				{{
+					info.geometry.lng
+				}}
+			</tr>
+		</table>
+	</div>
 </div>
