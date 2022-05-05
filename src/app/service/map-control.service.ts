@@ -24,8 +24,4 @@ export class MapControlService {
 	public set source(value: VectorSource) {
 		this._source = value;
 	}
-
-	// object: map
-	// method: clear map
-	// при инициализации присваиваем туда карту в сервис и управляем ей отсюда
 }
