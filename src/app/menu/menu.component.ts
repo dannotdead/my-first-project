@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { inAndOut } from 'ol/easing';
 import { Coordinate } from 'ol/coordinate';
 import { fromLonLat } from 'ol/proj';
 import { MapControlService } from '../service/map-control.service';
@@ -27,9 +28,21 @@ export class MenuComponent implements OnInit {
 	playMap() {
 		const coordsList = JSON.parse(localStorage.getItem('coords') || '[]');
 		if (coordsList) {
+			const mapView = this.mapControl.map.getView();
+			this.clearMapSource();
 			this.clearMapOverlayPosition();
-			const coords = coordsList.map((coords: Coordinate) => fromLonLat(coords));
-			this.mapControl.featureLineString.getGeometry()?.setCoordinates(coords);
+			coordsList.forEach((coords: Coordinate, index: number) => {
+				setTimeout(() => {
+					const coord = fromLonLat(coords);
+					mapView.animate({
+						center: coord,
+						easing: inAndOut,
+						zoom: 4,
+					});
+					this.mapControl.featureLineString.getGeometry()?.appendCoordinate(coord);
+					this.mapControl.featurePoint.getGeometry()?.setCoordinates(coord);
+				}, 1500 * index++);
+			});
 		}
 	}
 

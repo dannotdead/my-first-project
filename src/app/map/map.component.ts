@@ -3,7 +3,7 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import OSM from 'ol/source/OSM';
 import VectorSource from 'ol/source/Vector';
-import { Icon, Stroke, Style } from 'ol/style';
+import { Icon, IconImage, Stroke, Style } from 'ol/style';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Overlay from 'ol/Overlay';
 import { toLonLat } from 'ol/proj';
@@ -43,6 +43,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 		image: new Icon({
 			crossOrigin: 'anonymous',
 			src: 'assets/icon-location30.png',
+			anchor: [0.5, 1],
 		}),
 	});
 
@@ -68,7 +69,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 					if (feature) {
 						const featureCoords = this.featurePoint.getGeometry()?.getCoordinates() || [];
 						const overlays = this.map.getOverlays().getArray();
-
+						this.apiControl.setData(toLonLat(featureCoords).reverse());
 						this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${toLonLat(
 							featureCoords
 						)}</code>`;
