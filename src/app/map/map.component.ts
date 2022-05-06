@@ -66,8 +66,9 @@ export class MapComponent implements OnInit, AfterViewInit {
 						this.feature.getGeometry()?.setCoordinates(coordinate);
 
 						const coords = localStorage.getItem(this.coordsItem) || '[]';
-						const featureCoords = this.feature.getGeometry()?.getCoordinates();
-						const newCoords = [...JSON.parse(coords), toLonLat(featureCoords || [])];
+						const featureCoords = this.feature.getGeometry()?.getCoordinates() || [];
+						this.apiControl.setData(toLonLat(featureCoords).reverse());
+						const newCoords = [...JSON.parse(coords), toLonLat(featureCoords)];
 						localStorage.setItem(this.coordsItem, JSON.stringify(newCoords));
 						this.closePopup();
 					}
