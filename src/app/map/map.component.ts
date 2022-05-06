@@ -6,7 +6,6 @@ import VectorSource from 'ol/source/Vector';
 import { Icon, Style } from 'ol/style';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Overlay from 'ol/Overlay';
-import { Coordinate, toStringXY } from 'ol/coordinate';
 import { toLonLat } from 'ol/proj';
 import { defaults } from 'ol/control';
 import { Feature } from 'ol';
@@ -30,11 +29,9 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 	constructor(private mapControl: MapControlService, private apiControl: OpenCageService) {}
 
-	newFeature(coords: Array<number>): Feature {
-		return new Feature({
-			geometry: new Point(coords),
-		});
-	}
+	private feature: Feature<Point> = new Feature({
+		geometry: new Point([]),
+	});
 
 	private source = new VectorSource({});
 
@@ -54,33 +51,23 @@ export class MapComponent implements OnInit, AfterViewInit {
 		handleEvent: (event) => {
 			switch (event.type) {
 				case 'singleclick':
-					const features = this.source.getFeatures();
 					const coordinate = event.coordinate;
 					const feature = this.map.getFeaturesAtPixel(event.pixel)[0];
 
-					if (features.length === 0) {
-						this.source.addFeature(this.newFeature(coordinate));
-						localStorage.setItem(this.coordsItem, JSON.stringify([]));
-					}
-
 					if (feature) {
-						features.map((feat) => {
-							const [featureCoords, hdms] = this.getFeatureCoords(feat, coordinate);
-							this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${hdms}</code>`;
+						const featureCoords = this.feature.getGeometry()?.getCoordinates() || [];
+						const overlays = this.map.getOverlays().getArray();
 
-							const overlays = this.map.getOverlays().getArray();
-							overlays[0].setPosition(featureCoords);
-						});
+						this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${toLonLat(
+							featureCoords
+						)}</code>`;
+						overlays[0].setPosition(this.feature.getGeometry()?.getCoordinates());
 					} else {
-						this.source.clear();
-						const newFeature = this.newFeature(coordinate);
-						this.source.addFeature(newFeature);
-						const [, hdms] = this.getFeatureCoords(newFeature, coordinate);
-
-						this.apiControl.setData(hdms.split(', '));
+						this.feature.getGeometry()?.setCoordinates(coordinate);
 
 						const coords = localStorage.getItem(this.coordsItem) || '[]';
-						const newCoords = [...JSON.parse(coords), hdms];
+						const featureCoords = this.feature.getGeometry()?.getCoordinates();
+						const newCoords = [...JSON.parse(coords), toLonLat(featureCoords || [])];
 						localStorage.setItem(this.coordsItem, JSON.stringify(newCoords));
 						this.closePopup();
 					}
@@ -98,6 +85,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 	});
 
 	ngOnInit(): void {
+		localStorage.setItem(this.coordsItem, JSON.stringify([]));
 		this.map = new Map({
 			view: new View({
 				center: [0, 0],
@@ -118,6 +106,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 		});
 
 		this.map.addInteraction(this.pointer);
+		this.source.addFeature(this.feature);
 
 		this.mapControl.map = this.map;
 		this.mapControl.source = this.source;
@@ -135,12 +124,6 @@ export class MapComponent implements OnInit, AfterViewInit {
 		});
 
 		this.map.addOverlay(overlay);
-	}
-
-	getFeatureCoords(feature: Feature, rawCoords: Coordinate): [Coordinate, string] {
-		const featureCoords = feature.getGeometry()?.getClosestPoint(rawCoords) || [0, 0];
-		const hdms = toStringXY(toLonLat(featureCoords).reverse(), 5);
-		return [featureCoords, hdms];
 	}
 
 	closePopup(): boolean {
