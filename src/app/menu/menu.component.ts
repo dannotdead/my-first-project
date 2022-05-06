@@ -79,11 +79,8 @@ export class MenuComponent implements OnInit {
 	}
 
 	clearMapSource(): void {
-		const features = this.mapControl.source.getFeatures();
-
-		if (features.length > 0) {
-			this.mapControl.source.clear();
-		}
+		this.mapControl.feature.getGeometry()?.setCoordinates([]);
+		this.apiControl.clearData();
 	}
 
 	clearMapOverlayPosition(): void {

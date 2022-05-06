@@ -111,6 +111,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 		this.mapControl.map = this.map;
 		this.mapControl.source = this.source;
+		this.mapControl.feature = this.feature;
 	}
 
 	ngAfterViewInit(): void {

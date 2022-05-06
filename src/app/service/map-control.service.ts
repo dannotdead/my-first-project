@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Feature } from 'ol';
+import { Point } from 'ol/geom';
 import Map from 'ol/Map';
 import VectorSource from 'ol/source/Vector';
 
@@ -8,6 +10,7 @@ import VectorSource from 'ol/source/Vector';
 export class MapControlService {
 	private _map!: Map;
 	private _source!: VectorSource;
+	private _feature!: Feature<Point>;
 
 	public get map(): Map {
 		return this._map;
@@ -23,5 +26,13 @@ export class MapControlService {
 
 	public set source(value: VectorSource) {
 		this._source = value;
+	}
+
+	public get feature(): Feature<Point> {
+		return this._feature;
+	}
+
+	public set feature(value: Feature<Point>) {
+		this._feature = value;
 	}
 }

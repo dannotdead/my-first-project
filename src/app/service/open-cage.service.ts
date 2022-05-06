@@ -39,4 +39,8 @@ export class OpenCageService {
 				this.infoAboutFeatureSource.next(data.results?.[0]);
 			});
 	}
+
+	clearData() {
+		this.infoAboutFeatureSource.next(null);
+	}
 }
