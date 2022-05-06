@@ -3,7 +3,7 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import OSM from 'ol/source/OSM';
 import VectorSource from 'ol/source/Vector';
-import { Icon, IconImage, Stroke, Style } from 'ol/style';
+import { Icon, Stroke, Style } from 'ol/style';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import Overlay from 'ol/Overlay';
 import { toLonLat } from 'ol/proj';
@@ -13,6 +13,7 @@ import { LineString, Point } from 'ol/geom';
 import { MapControlService } from '../service/map-control.service';
 import { OpenCageService } from '../service/open-cage.service';
 import PointerInteraction from 'ol/interaction/Pointer';
+import { Coordinate } from 'ol/coordinate';
 
 @Component({
 	selector: 'map',
@@ -20,12 +21,12 @@ import PointerInteraction from 'ol/interaction/Pointer';
 	styleUrls: ['./map.component.css'],
 })
 export class MapComponent implements OnInit, AfterViewInit {
-	@ViewChild('popupContent') popupContent!: ElementRef;
 	@ViewChild('popupMain') popupMain!: ElementRef;
 	@ViewChild('popupCloser') popupCloser!: ElementRef;
 
 	private map!: Map;
 	private coordsItem = 'coords';
+	public popupContentCoords: Coordinate | null = null;
 
 	constructor(private mapControl: MapControlService, private apiControl: OpenCageService) {}
 
@@ -69,10 +70,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 					if (feature) {
 						const featureCoords = this.featurePoint.getGeometry()?.getCoordinates() || [];
 						const overlays = this.map.getOverlays().getArray();
-						this.apiControl.setData(toLonLat(featureCoords).reverse());
-						this.popupContent.nativeElement.innerHTML = `<p>You clicked here (lon, lat):</p><code>${toLonLat(
-							featureCoords
-						)}</code>`;
+						this.popupContentCoords = toLonLat(featureCoords);
 						overlays[0].setPosition(this.featurePoint.getGeometry()?.getCoordinates());
 					} else {
 						this.featurePoint.getGeometry()?.setCoordinates(coordinate);

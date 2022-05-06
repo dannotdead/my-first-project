@@ -1,5 +1,8 @@
 <div id="ol-map" class="map-container"></div>
 <div #popupMain id="popup" class="ol-popup">
-  <a href="#" #popupCloser id="popup-closer" class="ol-popup-closer" (click)="closePopup()"></a>
-	<div #popupContent id="popup-content" class="ol-popup-content"></div>
+	<a href="#" #popupCloser id="popup-closer" class="ol-popup-closer" (click)="closePopup()"></a>
+	<div id="popup-content" class="ol-popup-content">
+		<p>Ты нажал вот сюда (Долгота, Широта):</p>
+		<code>{{ popupContentCoords }}</code>
+	</div>
 </div>

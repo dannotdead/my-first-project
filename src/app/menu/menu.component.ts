@@ -29,7 +29,8 @@ export class MenuComponent implements OnInit {
 		const coordsList = JSON.parse(localStorage.getItem('coords') || '[]');
 		if (coordsList) {
 			const mapView = this.mapControl.map.getView();
-			this.clearMapSource();
+			this.mapControl.featurePoint.getGeometry()?.setCoordinates([]);
+			this.mapControl.featureLineString.getGeometry()?.setCoordinates([]);
 			this.clearMapOverlayPosition();
 			coordsList.forEach((coords: Coordinate, index: number) => {
 				setTimeout(() => {
@@ -37,7 +38,7 @@ export class MenuComponent implements OnInit {
 					mapView.animate({
 						center: coord,
 						easing: inAndOut,
-						zoom: 4,
+						zoom: 5,
 					});
 					this.mapControl.featureLineString.getGeometry()?.appendCoordinate(coord);
 					this.mapControl.featurePoint.getGeometry()?.setCoordinates(coord);
