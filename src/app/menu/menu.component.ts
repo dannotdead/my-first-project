@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { inAndOut } from 'ol/easing';
-import { Coordinate } from 'ol/coordinate';
 import { fromLonLat } from 'ol/proj';
 import { MapControlService } from '../service/map-control.service';
 import { OpenCageService } from '../service/open-cage.service';
+import { interval, map, take } from 'rxjs';
 
 @Component({
 	selector: 'menu',
@@ -32,18 +32,21 @@ export class MenuComponent implements OnInit {
 			this.mapControl.featurePoint.getGeometry()?.setCoordinates([]);
 			this.mapControl.featureLineString.getGeometry()?.setCoordinates([]);
 			this.clearMapOverlayPosition();
-			coordsList.forEach((coords: Coordinate, index: number) => {
-				setTimeout(() => {
-					const coord = fromLonLat(coords);
+
+			interval(1500)
+				.pipe(
+					take(coordsList.length),
+					map((index) => fromLonLat(coordsList[index]))
+				)
+				.subscribe((coords) => {
 					mapView.animate({
-						center: coord,
+						center: coords,
 						easing: inAndOut,
 						zoom: 5,
 					});
-					this.mapControl.featureLineString.getGeometry()?.appendCoordinate(coord);
-					this.mapControl.featurePoint.getGeometry()?.setCoordinates(coord);
-				}, 1500 * index++);
-			});
+					this.mapControl.featureLineString.getGeometry()?.appendCoordinate(coords);
+					this.mapControl.featurePoint.getGeometry()?.setCoordinates(coords);
+				});
 		}
 	}
 
