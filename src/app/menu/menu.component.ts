@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Feature } from 'ol';
-import { LineString, Point } from 'ol/geom';
-import VectorLayer from 'ol/layer/Vector';
+import { Coordinate } from 'ol/coordinate';
 import { fromLonLat } from 'ol/proj';
-import VectorSource from 'ol/source/Vector';
-import { Stroke, Style } from 'ol/style';
 import { MapControlService } from '../service/map-control.service';
 import { OpenCageService } from '../service/open-cage.service';
 
@@ -31,55 +27,15 @@ export class MenuComponent implements OnInit {
 	playMap() {
 		const coordsList = JSON.parse(localStorage.getItem('coords') || '[]');
 		if (coordsList) {
-			this.clearMapSource();
 			this.clearMapOverlayPosition();
-
-			const layers = this.mapControl.map.getAllLayers();
-			if (layers[2]) {
-				this.mapControl.map.removeLayer(layers[2]);
-			}
-
-			const coords = coordsList.map((coords: string) => this.addPoints(coords));
-
-			this.mapControl.map.addLayer(
-				new VectorLayer({
-					source: new VectorSource({
-						features: [
-							new Feature({
-								geometry: new LineString(coords),
-							}),
-						],
-					}),
-					style: new Style({
-						stroke: new Stroke({
-							width: 2,
-							color: '#ff0000',
-						}),
-					}),
-				})
-			);
-
-			coords.map((coord: number[]) => {
-				this.mapControl.source.addFeature(
-					new Feature({
-						geometry: new Point(coord),
-					})
-				);
-			});
+			const coords = coordsList.map((coords: Coordinate) => fromLonLat(coords));
+			this.mapControl.featureLineString.getGeometry()?.setCoordinates(coords);
 		}
 	}
 
-	addPoints(rawCoords: string) {
-		const coords = rawCoords
-			.split(', ')
-			.map((coord) => parseFloat(coord))
-			.reverse();
-
-		return fromLonLat(coords);
-	}
-
 	clearMapSource(): void {
-		this.mapControl.feature.getGeometry()?.setCoordinates([]);
+		this.mapControl.featurePoint.getGeometry()?.setCoordinates([]);
+		this.mapControl.featureLineString.getGeometry()?.setCoordinates([]);
 		this.apiControl.clearData();
 	}
 
