@@ -62,10 +62,10 @@ export class MapComponent implements OnInit, AfterViewInit {
 
 	private pointer = new PointerInteraction({
 		handleEvent: (event) => {
+			const feature = this.map.getFeaturesAtPixel(event.pixel)[0];
 			switch (event.type) {
 				case 'singleclick':
 					const coordinate = event.coordinate;
-					const feature = this.map.getFeaturesAtPixel(event.pixel)[0];
 
 					if (feature) {
 						const featureCoords = this.featurePoint.getGeometry()?.getCoordinates() || [];
@@ -84,7 +84,7 @@ export class MapComponent implements OnInit, AfterViewInit {
 					}
 					break;
 				case 'pointermove':
-					if (this.map.hasFeatureAtPixel(event.pixel)) {
+					if (feature) {
 						this.map.getViewport().style.cursor = 'pointer';
 					} else {
 						this.map.getViewport().style.cursor = 'inherit';
